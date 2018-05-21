@@ -1,0 +1,37 @@
+4:12
+
+
+directory www/
+form drwxr-xr-x 4096
+index.html -rw-rw-r-- 100 1 10
+main.css -rw-rw-r-- 47 11 4
+@
+directory www/form
+contact.html -rw-rw-r-- 196 15 12 
+@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mon site</title>
+	<link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+	Hello world !
+</body>
+</html>
+body {
+	background-color: blue;
+	color: #fff;
+}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Contactez moi</title>
+</head>
+<body>
+	<form method="post">
+		<input name="title" type="text"/>
+		<textarea name="content"></textarea>
+	</form>
+</body>
+</html>
