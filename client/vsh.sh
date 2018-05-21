@@ -33,8 +33,13 @@ elif [[ $1 == "-list" ]];
 then
 	# this option require 2 more parameters
 	[[ $# -lt 3 ]] && option_error "vsh -list"
-
-	echo "ok"	
+	
+	# send the request and reopen netcat to  
+	# see the server's response
+	echo "list" > client_in.txt
+	nc $2 $3 < client_in.txt
+	sleep 1s
+	nc $2 $3
 else
 	# the provided option is unknown
 	unrecognized_option $1

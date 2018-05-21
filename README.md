@@ -4,12 +4,21 @@
 
 https://doc.fedora-fr.org/wiki/Netcat,_connexion_client/serveur_en_bash
 
-run the server
+### server
+
+Run a local server
 ```
-nc -l 1234 < server/backpipe | server/entry.sh 1> server/backpipe
+bash server/server.sh [PORT]
 ```
 
-run the client
+### client
+
+help
 ```
-nc localhost 1234
+bash client/vsh.sh --help
+```
+
+mode list
+```
+bash client/vsh.sh -list localhost [PORT]  
 ```
