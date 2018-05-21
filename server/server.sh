@@ -1,6 +1,12 @@
 #!/bin/bash
 
-while true; 
+# if the backpipe doesn't exists, create it
+if [ ! -e backpipe ];
+then
+	mkfifo backpipe
+fi
+
+while true;
 do
 	# listen while there is a request
 	echo "server is listening"
