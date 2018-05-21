@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # if the backpipe doesn't exists, create it
-if [ ! -e backpipe ];
+if [ ! -e server/backpipe ];
 then
-	mkfifo backpipe
+	mkfifo server/backpipe
 fi
 
 while true;
@@ -18,7 +18,7 @@ do
 	# do something depending on the request
 	if [[ $cmd == "list" ]]; 
 	then
-  		nc -l 1234 < server/backpipe | echo "list ok server" > server/backpipe
+  		nc -l 1234 < server/backpipe | bash server/list.sh > server/backpipe
 	else
 		echo "Unknow command. Try 'list'"
 	fi
