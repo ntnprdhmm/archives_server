@@ -31,7 +31,7 @@ then
 	usage
 elif [[ $1 == "-list" ]];
 then
-	# this option require 2 more parameters
+	# these options require 2 more parameters
 	[[ $# -lt 3 ]] && option_error "vsh -list"
 	
 	# send the request and reopen netcat to  
@@ -40,6 +40,19 @@ then
 	nc $2 $3 < client_in.txt
 	sleep 1s
 	nc $2 $3
+elif [[ $1 == "-extract" ]];
+then
+	# these options require 3 more parameters
+	[[ $# -lt 4 ]] && option_error "vsh -extract"
+	
+	# send the request and reopen netcat to  
+	# see the server's response
+	echo "extract $4" > client_in.txt
+	nc $2 $3 < client_in.txt
+	sleep 1s
+	nc $2 $3 > extracted
+
+	bash client/extract.sh
 else
 	# the provided option is unknown
 	unrecognized_option $1

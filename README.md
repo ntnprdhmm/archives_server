@@ -22,3 +22,8 @@ mode list
 ```
 bash client/vsh.sh -list localhost [PORT]  
 ```
+
+mode extract 
+```
+bash client/vsh.sh -extract localhost [PORT] [ARCHIVE NAME]
+```
