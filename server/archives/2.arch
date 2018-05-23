@@ -1,7 +1,7 @@
 4:12
 
 
-directory www/
+directory www
 form drwxr-xr-x 4096
 index.html -rw-rw-r-- 100 1 10
 main.css -rw-rw-r-- 47 11 4
