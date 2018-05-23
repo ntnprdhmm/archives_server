@@ -18,7 +18,7 @@ do
 	cmd_parts=( $cmd )
 
 	# do something depending on the request
-	if [[ ${cmd_parts[0]} == "list" ]]; 
+	if [[ ${cmd_parts[0]} == "list" ]];
 	then
   		nc -l 1234 < server/backpipe | bash server/list.sh> server/backpipe
 	elif [[ ${cmd_parts[0]} == "extract" ]];

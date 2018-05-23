@@ -12,7 +12,7 @@ fi
 # start by parsing the first line
 header_start=$(echo $first_line | cut -d ":" -f 1)
 body_start=$(echo $first_line | cut -d ":" -f 2) 
-
+extracted_length=$(wc -l extracted | cut -d " " -f 1)
 
 # parse the string of permission (drwxrwxrwx)
 # and return permissions in number format (777)
@@ -61,13 +61,20 @@ do
 		echo "new subdirectory created: $sub_dir_path"
 	elif [[ $line =~ ^.+-.+ ]]; # match a file
 	then 
+		parts=($(echo $line))
 		# create the file
-		file=$(echo $line | cut -d " " -f 1)
-		file_path="$current_dir/$file"
+		file_path="$current_dir/${parts[0]}"
 		touch $file_path
 		# set the permissions
-		permissions=$(calculate_permissions $(echo $line | cut -d " " -f 2))
+		permissions=$(calculate_permissions ${parts[1]})
 		chmod $permissions $file_path
+		# fill the file with his content if there are complementary info
+		if [[ ${#parts[@]} == 5 ]];
+		then
+			content_start=$(($body_start - $extracted_length + ${parts[3]} - 3))
+			content_size=$((${parts[4]} * -1))
+			cat extracted | tail $content_start | head $content_size > $file_path
+		fi
 		echo "new file created: $file_path"
 	fi
 done
