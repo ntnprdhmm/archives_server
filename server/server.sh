@@ -24,7 +24,10 @@ do
 	elif [[ ${cmd_parts[0]} == "extract" ]];
 	then
 		nc -l 1234 < server/backpipe | bash server/extract.sh ${cmd_parts[1]} > server/backpipe
+	elif [[ ${cmd_parts[0]} == "browse" ]];
+	then
+		nc -l 1234 < server/backpipe | bash server/browse.sh ${cmd_parts[1]} > server/backpipe
 	else
-		echo "Unknow command. Try 'list', 'extract"
+		echo "Unknow command. Try 'list', 'extract' or 'browse'"
 	fi
 done
