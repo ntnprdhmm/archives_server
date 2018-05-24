@@ -16,5 +16,10 @@ current_location='/'
 cmd=""
 while [[ $cmd != "exit" ]];
 do
+	if [[ $cmd == "pwd" ]];
+	then
+		echo $current_location
+	fi
+
 	read -p "vsh@$host:$port {$archive_name} $current_location :> " cmd
 done
