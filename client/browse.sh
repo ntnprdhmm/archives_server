@@ -11,12 +11,21 @@ then
 	exit 1
 fi
 
-current_location='/'
+current_location="/"
 
 fetch_location(){
 	# send the request and reopen netcat to  
 	# see the server's response
 	echo "browsels $archive_name $1" > client_in.txt
+	nc $host $port < client_in.txt
+	sleep 1s
+	nc $host $port > client_out.txt
+}
+
+# check if the dir exists in the archive
+# return 0 (no) or 1 (yes)
+directory_exists(){
+	echo "direxists $archive_name $1" > client_in.txt
 	nc $host $port < client_in.txt
 	sleep 1s
 	nc $host $port > client_out.txt
@@ -51,7 +60,34 @@ do
 				str+=" "
 			fi
 		done < client_out.txt
-		echo $str 
+		echo $str
+	elif [[ ${cmd_parts[0]} =~ "cd" ]];
+	then
+		# check that there is a second parameter (where to go)
+		if [[ ${#cmd_parts[@]} -lt 2 ]];
+		then
+			echo "cd: missing operand" >&2
+			echo "cd: you must provide the destination" >&2
+		else
+			if [[ ${cmd_parts[1]} == "/" ]];
+			then
+				current_location="/"
+			elif [[ ${cmd_parts[1]} == ".." ]]
+			then
+				current_location=$(dirname $current_location)
+			else
+				# check if the resulting dir exists in the archive
+				directory_exists "$archive_root$current_location${cmd_parts[1]}"
+				exists=$(cat client_out.txt)
+				if [[ $exists == "1" ]];
+				then
+					current_location="$current_location${cmd_parts[1]}/"
+				else
+					echo "cd: invalid operand" >&2
+					echo "cd: you must provide a valid the destination" >&2
+				fi
+			fi			
+		fi
 	fi
 	read -p "vsh@$host:$port {$archive_name} $current_location :> " cmd
 done
