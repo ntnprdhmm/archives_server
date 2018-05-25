@@ -87,12 +87,14 @@ do
 			then
 				current_location=$(dirname $current_location)
 			else
+				target_location=$(bash client/navigate.sh $current_location ${cmd_parts[1]})
+				target_location=${target_location::-1}
 				# check if the resulting dir exists in the archive
-				directory_exists "$archive_root$current_location${cmd_parts[1]}"
+				directory_exists "$archive_root$target_location"
 				exists=$(cat client_out.txt)
 				if [[ $exists == "1" ]];
 				then
-					current_location="$current_location${cmd_parts[1]}/"
+					current_location="$target_location/"
 				else
 					echo "cd: invalid operand" >&2
 					echo "cd: you must provide a valid the destination" >&2
