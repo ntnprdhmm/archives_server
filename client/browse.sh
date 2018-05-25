@@ -13,6 +13,17 @@ fi
 
 current_location="/"
 
+fetch_file(){
+	# send the request and reopen netcat to  
+	# see the server's response
+	# $1 is the directory in the archive where is located the file
+	# $2 is the files's name
+	echo "browsecat $archive_name $1 $2" > client_in.txt
+	nc $host $port < client_in.txt
+	sleep 1s
+	nc $host $port > client_out.txt
+}
+
 fetch_location(){
 	# send the request and reopen netcat to  
 	# see the server's response
@@ -22,9 +33,9 @@ fetch_location(){
 	nc $host $port > client_out.txt
 }
 
-# check if the dir exists in the archive
-# return 0 (no) or 1 (yes)
 directory_exists(){
+	# check if the dir exists in the archive
+	# return 0 (no) or 1 (yes)
 	echo "direxists $archive_name $1" > client_in.txt
 	nc $host $port < client_in.txt
 	sleep 1s
@@ -87,6 +98,23 @@ do
 					echo "cd: you must provide a valid the destination" >&2
 				fi
 			fi			
+		fi
+	elif [[ ${cmd_parts[0]} == "cat" ]];
+	then
+		# check that there is a seconde parameter (the file to print)
+		if [[ ${#cmd_parts[@]} -lt 2 ]];
+		then
+			echo "cd: missing operand" >&2
+			echo "cd: you must provide the file to print" >&2
+		else
+			fetch_file "$archive_root$current_location" ${cmd_parts[1]} 
+			if [[ $(cat client_out.txt) == "-1" ]];
+			then
+				echo "cat: invalid operand" >&2
+				echo "cat: this file doesn't exist" >&2
+			else
+				cat client_out.txt
+			fi
 		fi
 	fi
 	read -p "vsh@$host:$port {$archive_name} $current_location :> " cmd
