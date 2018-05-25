@@ -51,7 +51,10 @@ do
 		echo $current_location
 	elif [[ ${cmd_parts[0]} =~ "ls" ]];
 	then
-		fetch_location "$archive_root$current_location${cmd_parts[1]}"
+		target_location=$(bash client/navigate.sh $current_location ${cmd_parts[1]})
+		target_location=${target_location::-1}
+		
+		fetch_location "$archive_root$target_location"
 		# format and display the response
 		str=""
 		while read line 
