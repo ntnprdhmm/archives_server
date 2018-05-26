@@ -153,7 +153,6 @@ do
 			target_location=${target_location::-1}
 
 			remove "$archive_root$target_location" 
-			cat client_out.txt
 			if [[ $(cat client_out.txt) == "-1" ]];
 			then
 				echo "rm: invalid operand" >&2
@@ -171,7 +170,8 @@ do
 			target_location=$(bash client/navigate.sh $current_location ${cmd_parts[1]})
 			target_location=${target_location::-1}
 
-			remove_dir "$archive_root$target_location" 
+			remove_dir "$archive_root$target_location"
+			cat client_out.txt
 			if [[ $(cat client_out.txt) == "-1" ]];
 			then
 				echo "rmdir: invalid operand" >&2
