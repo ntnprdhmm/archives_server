@@ -13,6 +13,26 @@ fi
 
 current_location="/"
 
+remove(){
+	# send the request and reopen netcat to  
+	# see the server's response
+	# $1 is the file in the archive to delete
+	echo "browserm $archive_name $1" > client_in.txt
+	nc $host $port < client_in.txt
+	sleep 1s
+	nc $host $port > client_out.txt
+}
+
+remove_dir(){
+	# send the request and reopen netcat to  
+	# see the server's response
+	# $1 is the directory in the archive to delete 
+	echo "browsermdir $archive_name $1" > client_in.txt
+	nc $host $port < client_in.txt
+	sleep 1s
+	nc $host $port > client_out.txt
+}
+
 fetch_file(){
 	# send the request and reopen netcat to  
 	# see the server's response
@@ -109,8 +129,8 @@ do
 		# check that there is a seconde parameter (the file to print)
 		if [[ ${#cmd_parts[@]} -lt 2 ]];
 		then
-			echo "cd: missing operand" >&2
-			echo "cd: you must provide the file to print" >&2
+			echo "cat: missing operand" >&2
+			echo "cat: you must provide the file to print" >&2
 		else
 			fetch_file "$archive_root$current_location" ${cmd_parts[1]} 
 			if [[ $(cat client_out.txt) == "-1" ]];
@@ -119,6 +139,43 @@ do
 				echo "cat: this file doesn't exist" >&2
 			else
 				cat client_out.txt
+			fi
+		fi
+	elif [[ ${cmd_parts[0]} == "rm" ]];
+	then
+		# check that there is a second parameter (the file or directory to remove)
+		if [[ ${#cmd_parts[@]} -lt 2 ]];
+		then
+			echo "rm: missing operand" >&2
+			echo "rm: you must provide the file or directory to remove" >&2
+		else
+			target_location=$(bash client/navigate.sh $current_location ${cmd_parts[1]})
+			target_location=${target_location::-1}
+
+			remove "$archive_root$target_location" 
+			cat client_out.txt
+			if [[ $(cat client_out.txt) == "-1" ]];
+			then
+				echo "rm: invalid operand" >&2
+				echo "rm: this file doesn't exist" >&2
+			fi
+		fi
+	elif [[ ${cmd_parts[0]} == "rmdir" ]];
+	then
+		# check that there is a second parameter (the file or directory to remove)
+		if [[ ${#cmd_parts[@]} -lt 2 ]];
+		then
+			echo "rm: missing operand" >&2
+			echo "rm: you must provide the directory to remove" >&2
+		else
+			target_location=$(bash client/navigate.sh $current_location ${cmd_parts[1]})
+			target_location=${target_location::-1}
+
+			remove_dir "$archive_root$target_location" 
+			if [[ $(cat client_out.txt) == "-1" ]];
+			then
+				echo "rmdir: invalid operand" >&2
+				echo "rmdir: this directory doesn't exist" >&2
 			fi
 		fi
 	fi
