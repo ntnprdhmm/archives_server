@@ -14,9 +14,9 @@ header_start=$(echo $first_line | cut -d ":" -f 1)
 body_start=$(echo $first_line | cut -d ":" -f 2) 
 extracted_length=$(wc -l extracted | cut -d " " -f 1)
 
-# parse the string of permission (drwxrwxrwx)
-# and return permissions in number format (777)
 calculate_permissions(){
+	# parse the string of permission (drwxrwxrwx)
+	# and return permissions in number format (777)
 	p=$1
 	user=0
 	group=0
@@ -35,11 +35,10 @@ calculate_permissions(){
 
 current_dir=""
 
-# read each line of the file's header
+# read each line of the archive's header
 cat extracted | head $(($body_start * -1 + 1)) | tail $(($(($body_start - $header_start)) * -1)) | while read line;
 do
-	# handle lines
-	if [[ $line =~ ^directory ]];
+	if [[ $(echo $line | grep -P "^directory\s") ]]; # matches a parent directory "directory [PATH]"
 	then
 		# update the current_dir path
 		current_dir=$(echo $line | cut -d " " -f 2)
@@ -49,7 +48,7 @@ do
 			mkdir -p $current_dir
 			echo "new directory created: $current_dir"
 		fi
-	elif [[ $line =~ ^.+d.+ ]]; # match a directory
+	elif [[ $(echo $line | grep -P "^[^\s]+\sd") ]]; # matches a child directory "[BASENAME] drwxrwxrwx [SIZE]" 
 	then
 		# create the directory
 		sub_dir=$(echo $line | cut -d " " -f 1)
@@ -59,9 +58,9 @@ do
 		permissions=$(calculate_permissions $(echo $line | cut -d " " -f 2))
 		chmod $permissions $sub_dir_path
 		echo "new subdirectory created: $sub_dir_path"
-	elif [[ $line =~ ^.+-.+ ]]; # match a file
+	elif [[ $(echo $line | grep -P "^[^\s]+\s-") ]]; # matches a child file "[BASENAME] -rwxrwxrwx [SIZE] [INFO...]"
 	then 
-		parts=($(echo $line))
+		parts=( $line )
 		# create the file
 		file_path="$current_dir/${parts[0]}"
 		touch $file_path
