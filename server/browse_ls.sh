@@ -1,24 +1,23 @@
-archives_path="server/archives/"
+archive_path="server/archives/$1"
+directory=$2
 
-archives_name=$1
-location=$2
-
-# if there is a / at the end of the location, remove it
-if [[ ${location: -1} == "/" ]]; 
+# if there is a / at the end of the directory, remove it
+if [[ ${directory: -1} == "/" ]]; 
 then
-	location=${location::-1}
+	directory=${directory::-1}
 fi
 
-archive_path=$archives_path$archives_name
+# search the line number of the directory's declaration in the archive
+line=$(grep -n -m 1 $directory $archive_path | cut -d ":" -f 1)
 
-# search the line number of this location
-line=$(grep -n -m 1 $location $archive_path | cut -d ":" -f 1)
-
-# get alls the line until the next @
+# count the number of line of this archive
 nb_lines=$(wc -l $archive_path | cut -d " " -f 1)
 
+# cut the archive content => start at the directory's declaration
+# == at line $line
 cat $archive_path | tail $(($line - $nb_lines -1)) > temp.txt
 
+# read all the children of the directory (== until the next @)
 while read line 
 do 
 	if [[ $line =~ "@" ]];

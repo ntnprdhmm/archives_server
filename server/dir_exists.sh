@@ -1,13 +1,8 @@
-archives_path="server/archives/"
-
-archives_name=$1
+archive_path="server/archives/$1"
 directory=$2
 
-archive_path=$archives_path$archives_name
-
-match=$(cat $archive_path | grep "^directory\s${directory}$")
-
-if [[ $match ]];
+# return 1 if the dir exists in the archive
+if [[ $(cat $archive_path | grep "^directory\s${directory}$") ]];
 then
 	echo "1"
 else
