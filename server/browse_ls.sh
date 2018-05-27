@@ -1,3 +1,5 @@
+#!/bin/bash
+
 archive_path="server/archives/$1"
 directory=$2
 

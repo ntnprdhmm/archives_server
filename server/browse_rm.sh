@@ -1,3 +1,5 @@
+#!/bin/bash
+
 archive_name=$1
 archive_path="server/archives/$archive_name"
 directory=$(dirname $2)

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 archives_path="server/archives/"
 
 # if the file doesn't exists, return an error code

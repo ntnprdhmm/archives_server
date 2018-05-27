@@ -1,4 +1,0 @@
-A1 drwxr-xr-x 4096
-A2 drwxr-xr-x 4096
-A3 drwxr-xr-x 4096
-toto3 -rw-r--r-- 121 14 3

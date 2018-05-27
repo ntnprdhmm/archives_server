@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # read the first line of the file extracted
 first_line=$(cat extracted | head -1)
 

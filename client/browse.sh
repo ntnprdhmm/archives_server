@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # name parameters
 host=$1
 port=$2

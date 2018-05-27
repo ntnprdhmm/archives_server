@@ -1,8 +1,8 @@
 client_in.txt
 client_out.txt
 server_in.txt
-temp.txt
-temp2.txt
 extracted
 
 backpipe
+
+temp*.txt

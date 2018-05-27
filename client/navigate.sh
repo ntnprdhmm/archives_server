@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # $1 => the current dir
 # s2 => a relative path
 # this script apply the given relative path to the current dir
