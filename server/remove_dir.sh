@@ -41,9 +41,6 @@ then
 		line_in_parent=$(grep -P -n -m 1 "^$(basename $directory)\sd" temp4.txt | sed 's/\([0-9]*\).*/\1/')
 		if [[ $line_in_parent ]];
 		then
-			echo "parent: $(dirname $directory)"
-			echo "dir to remove: $(basename $directory)"
-			echo $((parent_line+line_in_parent))
 			sed -i "$((parent_line+line_in_parent))s/.*//" $archive_path
 		fi	
 	fi

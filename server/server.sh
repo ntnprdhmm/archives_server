@@ -29,7 +29,7 @@ do
 		"browsels")
 			nc -l $port < server/backpipe | bash server/browse_ls.sh ${cmd_parts[1]} ${cmd_parts[2]} > server/backpipe;;
 		"browsecat")
-			nc -l $port < server/backpipe | bash server/browse_cat.sh ${cmd_parts[1]} ${cmd_parts[2]} > server/backpipe;;
+			nc -l $port < server/backpipe | bash server/browse_cat.sh ${cmd_parts[1]} ${cmd_parts[2]} ${cmd_parts[3]} > server/backpipe;;
 		"browserm")
 			nc -l $port < server/backpipe | bash server/browse_rm.sh ${cmd_parts[1]} ${cmd_parts[2]} ${cmd_parts[3]} > server/backpipe;;
 		"browsermdir")

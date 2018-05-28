@@ -13,19 +13,20 @@ found=false
 # now, search the requested file
 while read line
 do 
-	if [[ $(echo $line | grep -P "^${file_to_print}\s-") ]];
+	match=$(echo $line | grep -P "^${file_to_print}\s-")
+	if [[ $match ]];
 	then
 		# we found the file
 		# get the lines of the file's content
 		found=true
-		parts=($(echo $match))
+		parts=( $match )
 		
 		# extract and cat the content
-		body_start=$(cat $archive_path| head -1 | cut -d ":" -f 2) 
-		archive_length=$(wc -l archive_path | cut -d " " -f 1)
+		body_start=$(cat $archive_path | head -1 | cut -d ":" -f 2) 
+		archive_length=$(wc -l $archive_path | cut -d " " -f 1)
 		content_start=$(($body_start - $archive_length + ${parts[3]} - 3))
-		content_size=$((${parts[4]} * -1))
-		cat $archive_path | tail $content_start | head $content_size
+		content_size=${parts[4]}
+		cat $archive_path | tail $content_start | head "-$content_size"
 
 		break
 	fi 

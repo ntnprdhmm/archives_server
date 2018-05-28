@@ -21,7 +21,8 @@ do
 		then
 			new_dir="$new_dir/"
 		fi
-	else
+	elif [[ ${parts[i]} != "." ]];
+	then
 		new_dir="$new_dir${parts[i]}/"
 	fi
 	i=$(($i+1))
