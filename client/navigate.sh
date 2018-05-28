@@ -6,26 +6,31 @@
 # and echo the result
 
 new_dir=$1
-relative_path=$2
+path=$2
 
-parts=(${relative_path//\// })
+if [[ $(echo $path | grep -P "^/") ]];
+then
+	echo "$path/"
+else
+	parts=(${path//\// })
 
-# handle ".." parts
-i=0
-while [[ i -lt ${#parts[@]} ]];
-do
-	if [[ ${parts[i]} == ".." ]];
-	then
-		new_dir=$(dirname $new_dir)
-		if [[ $new_dir != "/" ]];
+	# handle ".." parts
+	i=0
+	while [[ i -lt ${#parts[@]} ]];
+	do
+		if [[ ${parts[i]} == ".." ]];
 		then
-			new_dir="$new_dir/"
+			new_dir=$(dirname $new_dir)
+			if [[ $new_dir != "/" ]];
+			then
+				new_dir="$new_dir/"
+			fi
+		elif [[ ${parts[i]} != "." ]];
+		then
+			new_dir="$new_dir${parts[i]}/"
 		fi
-	elif [[ ${parts[i]} != "." ]];
-	then
-		new_dir="$new_dir${parts[i]}/"
-	fi
-	i=$(($i+1))
-done
+		i=$(($i+1))
+	done
 
-echo $new_dir
+	echo $new_dir
+fi
