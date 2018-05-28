@@ -67,7 +67,7 @@ handle_ls(){
 	str=""
 	while read line 
 	do 
-		if [[ $(echo $line | grep -P "^[^\s]\sd") ]];
+		if [[ $(echo $line | grep -P "^[^\s]+\sd") ]];
 		then
 			# it's a dir
 			str+="$(echo $line | cut -d " " -f 1)/ "
@@ -89,26 +89,19 @@ handle_cd(){
 	# $1 should be the a path (where to go)
 	if [[ $1 ]];
 	then
-		if [[ $1 == "/" ]];
+		target_location=$(bash client/navigate.sh $current_location $1)
+		target_location=${target_location::-1}
+
+		# check if the resulting dir exists in the archive
+		directory_exists "$archive_root$target_location"
+		exists=$(cat client_out.txt)
+		if [[ $exists == "1" ]];
 		then
-			current_location="/"
-		elif [[ $1 == ".." ]]
-		then
-			current_location=$(dirname $current_location)
+			current_location="$target_location/"
 		else
-			target_location=$(bash client/navigate.sh $current_location $1)
-			target_location=${target_location::-1}
-			# check if the resulting dir exists in the archive
-			directory_exists "$archive_root$target_location"
-			exists=$(cat client_out.txt)
-			if [[ $exists == "1" ]];
-			then
-				current_location="$target_location/"
-			else
-				echo "cd: invalid operand" >&2
-				echo "cd: you must provide a valid the destination" >&2
-			fi
-		fi		
+			echo "cd: invalid operand" >&2
+			echo "cd: you must provide a valid the destination" >&2
+		fi
 	else
 		echo "cd: missing operand" >&2
 		echo "cd: you must provide the destination" >&2
