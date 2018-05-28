@@ -13,7 +13,7 @@ then
 	exit 1
 fi
 
-current_location="/"
+current_dir="/"
 
 show_preface(){
 	echo "Welcome to the VSH browse shell."
@@ -84,7 +84,7 @@ directory_exists(){
 handle_ls(){
 	# $1 is the directory to ls
 	# find the target dir from current dir and the given relative path to the dir to ls 
-	target_dir=$(bash client/navigate.sh $current_location $1)
+	target_dir=$(bash client/navigate.sh $current_dir $1)
 	target_dir=${target_dir::-1}
 	# fetch the content of the directory to ls
 	fetch_directory "$archive_root$target_dir"
@@ -114,15 +114,15 @@ handle_cd(){
 	# $1 should be the a path (where to go)
 	if [[ $1 ]];
 	then
-		target_location=$(bash client/navigate.sh $current_location $1)
-		target_location=${target_location::-1}
+		target_dir=$(bash client/navigate.sh $current_dir $1)
+		target_dir=${target_dir::-1}
 
 		# check if the resulting dir exists in the archive
-		directory_exists "$archive_root$target_location"
+		directory_exists "$archive_root$target_dir"
 		exists=$(cat $VSH_CLIENT_RES)
 		if [[ $exists == "1" ]];
 		then
-			current_location="$target_location/"
+			current_dir="$target_dir/"
 		else
 			echo "cd: invalid operand" >&2
 			echo "cd: you must provide a valid the destination" >&2
@@ -137,7 +137,7 @@ handle_cat(){
 	# $1 should be the path to the file to cat
 	if [[ $1 ]];
 	then
-		target_file=$(bash client/navigate.sh $current_location $(dirname $1))
+		target_file=$(bash client/navigate.sh $current_dir $(dirname $1))
 		target_file="$target_file$(basename $1)"
 		
 		fetch_file $(dirname "$archive_root$target_file") $(basename $target_file) 
@@ -158,10 +158,10 @@ handle_rm(){
 	# $1 should be the path to the file to remove
 	if [[ $1 ]];
 	then
-		target_location=$(bash client/navigate.sh $current_location $1)
-		target_location=${target_location::-1}
+		target_dir=$(bash client/navigate.sh $current_dir $1)
+		target_dir=${target_dir::-1}
 
-		remove "$archive_root$target_location" 
+		remove "$archive_root$target_dir" 
 		if [[ $(cat $VSH_CLIENT_RES) == "-1" ]];
 		then
 			echo "rm: invalid operand" >&2
@@ -177,10 +177,10 @@ handle_rmdir(){
 	# $1 is the path of the directory to remove
 	if [[ $1 ]];
 	then
-		target_location=$(bash client/navigate.sh $current_location $1)
-		target_location=${target_location::-1}
+		target_dir=$(bash client/navigate.sh $current_dir $1)
+		target_dir=${target_dir::-1}
 
-		remove_dir "$archive_root$target_location"
+		remove_dir "$archive_root$target_dir"
 		cat $VSH_CLIENT_RES
 		if [[ $(cat $VSH_CLIENT_RES) == "-1" ]];
 		then
@@ -203,7 +203,7 @@ do
 	cmd_parts=( $cmd )
 	if [[ ${cmd_parts[0]} == "pwd" ]];
 	then
-		echo $current_location
+		echo $current_dir
 	elif [[ ${cmd_parts[0]} == "ls" ]];
 	then
 		handle_ls ${cmd_parts[1]}
@@ -225,5 +225,5 @@ do
 	else
 		echo "vsh browse: command not found: ${cmd_parts[0]}"
 	fi
-	read -p "vsh@$host:$port {$archive_name} $current_location :> " cmd
+	read -p "vsh@$host:$port {$archive_name} $current_dir :> " cmd
 done

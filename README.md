@@ -27,3 +27,8 @@ mode extract
 ```
 bash client/vsh.sh -extract localhost [PORT] [ARCHIVE NAME]
 ```
+
+mode browse
+```
+bash client/vsh.sh -browse localhost [PORT] [ARCHIVE NAME]
+```
