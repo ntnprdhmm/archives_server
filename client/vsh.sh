@@ -5,6 +5,13 @@
 host=$2
 port=$3
 
+# define shared files names
+# and export them so we can use these variables in all the client's scripts
+VSH_CLIENT_REQ="client_req.txt" # client's request 
+VSH_CLIENT_RES="client_res.txt" # server's response
+export VSH_CLIENT_REQ
+export VSH_CLIENT_RES
+
 usage(){ 
 	echo "Usage: ./vsh.sh [OPTION] [PARAMETER...]"
 	echo "" 
@@ -37,8 +44,8 @@ send_request(){
 	# receive the server's response
 	# this response is displayed in the console
 	# $1 is the request to send
-	echo $1 > client_in.txt
-	nc $host $port < client_in.txt
+	echo $1 > $VSH_CLIENT_REQ
+	nc $host $port < $VSH_CLIENT_REQ
 	sleep 1s
 	nc $host $port
 }
@@ -56,7 +63,7 @@ elif [[ $1 == "-extract" ]];
 then
 	# this option requires 3 more parameters
 	[[ $# -lt 4 ]] && option_error "vsh -extract"
-	send_request "extract $4" > /dev/null
+	send_request "extract $4" > $VSH_CLIENT_RES
 	bash client/extract.sh
 elif [[ $1 == "-browse" ]];
 then

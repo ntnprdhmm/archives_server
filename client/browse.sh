@@ -43,10 +43,10 @@ usage(){
 send_request() {
 	# send the request to the server and reopen netcat to  
 	# save the server's response
-	echo $1 > client_in.txt
-	nc $host $port < client_in.txt
+	echo $1 > $VSH_CLIENT_REQ
+	nc $host $port < $VSH_CLIENT_REQ
 	sleep 1s
-	nc $host $port > client_out.txt
+	nc $host $port > $VSH_CLIENT_RES
 }
 
 remove(){
@@ -106,7 +106,7 @@ handle_ls(){
 			fi
 			str+=" "
 		fi
-	done < client_out.txt
+	done < $VSH_CLIENT_RES
 	echo $str
 }
 
@@ -119,7 +119,7 @@ handle_cd(){
 
 		# check if the resulting dir exists in the archive
 		directory_exists "$archive_root$target_location"
-		exists=$(cat client_out.txt)
+		exists=$(cat $VSH_CLIENT_RES)
 		if [[ $exists == "1" ]];
 		then
 			current_location="$target_location/"
@@ -141,12 +141,12 @@ handle_cat(){
 		target_file="$target_file$(basename $1)"
 		
 		fetch_file $(dirname "$archive_root$target_file") $(basename $target_file) 
-		if [[ $(cat client_out.txt) == "-1" ]];
+		if [[ $(cat $VSH_CLIENT_RES) == "-1" ]];
 		then
 			echo "cat: invalid operand" >&2
 			echo "cat: this file doesn't exist" >&2
 		else
-			cat client_out.txt
+			cat $VSH_CLIENT_RES
 		fi
 	else
 		echo "cat: missing operand" >&2
@@ -162,7 +162,7 @@ handle_rm(){
 		target_location=${target_location::-1}
 
 		remove "$archive_root$target_location" 
-		if [[ $(cat client_out.txt) == "-1" ]];
+		if [[ $(cat $VSH_CLIENT_RES) == "-1" ]];
 		then
 			echo "rm: invalid operand" >&2
 			echo "rm: this file doesn't exist" >&2
@@ -181,8 +181,8 @@ handle_rmdir(){
 		target_location=${target_location::-1}
 
 		remove_dir "$archive_root$target_location"
-		cat client_out.txt
-		if [[ $(cat client_out.txt) == "-1" ]];
+		cat $VSH_CLIENT_RES
+		if [[ $(cat $VSH_CLIENT_RES) == "-1" ]];
 		then
 			echo "rmdir: invalid operand" >&2
 			echo "rmdir: this directory doesn't exist" >&2

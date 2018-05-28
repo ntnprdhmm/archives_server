@@ -1,7 +1,7 @@
 #!/bin/bash
 
 archive_name=$1
-archive_path="server/archives/$archive_name"
+archive_path="$VSH_ARCHIVES_PATH$archive_name"
 directory=$2
 
 # remove each directory matching the given directory 

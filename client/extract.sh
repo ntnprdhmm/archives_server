@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# read the first line of the file extracted
-first_line=$(cat extracted | head -1)
+# read the first line of the extracted archive
+first_line=$(cat $VSH_CLIENT_RES | head -1)
 
 # if the server responded with an error code, display message and leave here 
 if [[ $first_line == "-1" ]];
@@ -14,7 +14,7 @@ fi
 # start by parsing the first line
 header_start=$(echo $first_line | cut -d ":" -f 1)
 body_start=$(echo $first_line | cut -d ":" -f 2) 
-extracted_length=$(wc -l extracted | cut -d " " -f 1)
+extracted_length=$(wc -l $VSH_CLIENT_RES | cut -d " " -f 1)
 
 calculate_permissions(){
 	# parse the string of permission (drwxrwxrwx)
@@ -38,7 +38,7 @@ calculate_permissions(){
 current_dir=""
 
 # read each line of the archive's header
-cat extracted | head $(($body_start * -1 + 1)) | tail $(($(($body_start - $header_start)) * -1)) | while read line;
+cat $VSH_CLIENT_RES | head $(($body_start * -1 + 1)) | tail $(($(($body_start - $header_start)) * -1)) | while read line;
 do
 	if [[ $(echo $line | grep -P "^directory\s") ]]; # matches a parent directory "directory [PATH]"
 	then
@@ -74,7 +74,7 @@ do
 		then
 			content_start=$(($body_start - $extracted_length + ${parts[3]} - 3))
 			content_size=$((${parts[4]} * -1))
-			cat extracted | tail $content_start | head $content_size > $file_path
+			cat $VSH_CLIENT_RES | tail $content_start | head $content_size > $file_path
 		fi
 		echo "new file created: $file_path"
 	fi

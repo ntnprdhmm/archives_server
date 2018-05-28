@@ -1,7 +1,6 @@
-client_in.txt
-client_out.txt
+client_req.txt
+client_res.txt
 server_in.txt
-extracted
 
 backpipe
 

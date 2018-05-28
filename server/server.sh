@@ -2,6 +2,10 @@
 
 port=$1
 
+# define server's shared variables
+VSH_ARCHIVES_PATH="server/archives/"
+export VSH_ARCHIVES_PATH
+
 # if the backpipe doesn't exists, create it
 if [ ! -e server/backpipe ];
 then

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 archive_name=$1
-archive_path="server/archives/$1"
+archive_path="$VSH_ARCHIVES_PATH$1"
 directory=$2
 file_to_print=$3
 

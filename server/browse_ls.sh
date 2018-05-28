@@ -1,6 +1,6 @@
 #!/bin/bash
 
-archive_path="server/archives/$1"
+archive_path="$VSH_ARCHIVES_PATH$1"
 directory=$2
 
 # if there is a / at the end of the directory, remove it

@@ -1,7 +1,6 @@
 #!/bin/bash
 
-archive_name=$1
-archive_path="server/archives/$1"
+archive_path="$VSH_ARCHIVES_PATH$1"
 
 # if the archive doesn't exists, return an error code
 # else return the content of the archive
