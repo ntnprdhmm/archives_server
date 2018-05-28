@@ -15,6 +15,31 @@ fi
 
 current_location="/"
 
+show_preface(){
+	echo "Welcome to the VSH browse shell."
+	echo "You are browsing the archive '$archive_name'"
+	echo ""
+	echo "Type 'help' for help. Type 'exit' to leave the browse shell."
+	echo ""
+}
+
+usage(){ 
+	echo "-------"
+	echo ""
+	echo "Browse commands:"
+	echo "" 
+	echo "pwd			show the current directory" 
+	echo "ls [DIR]		list the content of the specified directory"
+	echo "cd <DIR>		move to the specified specified directory"
+	echo "cat <FILE>		cat the content of the specified file"
+	echo "rm <FILE>		remove the specified file"
+	echo "rmdir <DIR>		remove the specified directory"
+	echo ""
+	echo "Each path (for a directory or a file) can be absolute or relative to the current directory."
+	echo ""
+	echo "-------"
+}
+
 send_request() {
 	# send the request to the server and reopen netcat to  
 	# save the server's response
@@ -168,6 +193,8 @@ handle_rmdir(){
 	fi
 }
 
+show_preface
+
 cmd=""
 while [[ $cmd != "exit" ]];
 do
@@ -192,6 +219,11 @@ do
 	elif [[ ${cmd_parts[0]} == "rmdir" ]];
 	then
 		handle_rmdir ${cmd_parts[1]}
+	elif [[ ${cmd_parts[0]} == "help" ]];
+	then
+		usage
+	else
+		echo "vsh browse: command not found: ${cmd_parts[0]}"
 	fi
 	read -p "vsh@$host:$port {$archive_name} $current_location :> " cmd
 done
