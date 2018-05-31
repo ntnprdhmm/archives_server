@@ -4,4 +4,4 @@
 #
 # as all the archives are at the root of the archives folder
 # we just display name of the file, not the path
-find server/archives -type f -exec basename {} \;
+find archives -type f -exec basename {} \;

@@ -10,7 +10,7 @@ current_line=$dir_line
 if [[ $directory ]];
 then
 	# go through each direct child
-	bash server/browse_ls.sh $archive_name $directory > temp.txt
+	bash browse_ls.sh $archive_name $directory > temp.txt
 	while read line
 	do
 		((current_line++))
@@ -21,7 +21,7 @@ then
 		elif [[ $(echo $line | grep -P "^([^\s]+)(\s)-.+$") ]];
 		then
 			# if it's a file
-			bash server/browse_rm.sh $archive_name "$directory/$(echo $line | cut -d " " -f 1)"
+			bash browse_rm.sh $archive_name "$directory/$(echo $line | cut -d " " -f 1)"
 		elif [[ $line == "@" ]];
 		then
 			break
@@ -37,7 +37,7 @@ then
 	then
 		# the deleted folder has a parent is the archive
 		# let's find the index line of the removed dir in his parent's children
-		bash server/browse_ls.sh $archive_name $parent > temp4.txt
+		bash browse_ls.sh $archive_name $parent > temp4.txt
 		line_in_parent=$(grep -P -n -m 1 "^$(basename $directory)\sd" temp4.txt | sed 's/\([0-9]*\).*/\1/')
 		if [[ $line_in_parent ]];
 		then

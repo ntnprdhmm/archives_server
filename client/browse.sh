@@ -84,7 +84,7 @@ directory_exists(){
 handle_ls(){
 	# $1 is the directory to ls
 	# find the target dir from current dir and the given relative path to the dir to ls 
-	target_dir=$(bash client/navigate.sh $current_dir $1)
+	target_dir=$(bash navigate.sh $current_dir $1)
 	target_dir=${target_dir::-1}
 	# fetch the content of the directory to ls
 	fetch_directory "$archive_root$target_dir"
@@ -114,7 +114,7 @@ handle_cd(){
 	# $1 should be the a path (where to go)
 	if [[ $1 ]];
 	then
-		target_dir=$(bash client/navigate.sh $current_dir $1)
+		target_dir=$(bash navigate.sh $current_dir $1)
 		target_dir=${target_dir::-1}
 
 		# check if the resulting dir exists in the archive
@@ -137,7 +137,7 @@ handle_cat(){
 	# $1 should be the path to the file to cat
 	if [[ $1 ]];
 	then
-		target_file=$(bash client/navigate.sh $current_dir $(dirname $1))
+		target_file=$(bash navigate.sh $current_dir $(dirname $1))
 		target_file="$target_file$(basename $1)"
 		
 		fetch_file $(dirname "$archive_root$target_file") $(basename $target_file) 
@@ -158,7 +158,7 @@ handle_rm(){
 	# $1 should be the path to the file to remove
 	if [[ $1 ]];
 	then
-		target_dir=$(bash client/navigate.sh $current_dir $1)
+		target_dir=$(bash navigate.sh $current_dir $1)
 		target_dir=${target_dir::-1}
 
 		remove "$archive_root$target_dir" 
@@ -177,7 +177,7 @@ handle_rmdir(){
 	# $1 is the path of the directory to remove
 	if [[ $1 ]];
 	then
-		target_dir=$(bash client/navigate.sh $current_dir $1)
+		target_dir=$(bash navigate.sh $current_dir $1)
 		target_dir=${target_dir::-1}
 
 		remove_dir "$archive_root$target_dir"

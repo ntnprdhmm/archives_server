@@ -64,14 +64,14 @@ then
 	# this option requires 3 more parameters
 	[[ $# -lt 4 ]] && option_error "vsh -extract"
 	send_request "extract $4" > $VSH_CLIENT_RES
-	bash client/extract.sh
+	bash extract.sh
 elif [[ $1 == "-browse" ]];
 then
 	# this option requires 3 more parameters
 	[[ $# -lt 4 ]] && option_error "vsh -browse"
 	# here, we capture the response to use it in another script
 	root=$(send_request "browse $4")
-	bash client/browse.sh $2 $3 $4 $root
+	bash browse.sh $2 $3 $4 $root
 else
 	# the provided option is unknown
 	unrecognized_option $1

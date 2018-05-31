@@ -12,5 +12,5 @@ grep -P "^directory\s$directory(\/.+)?$" $archive_path > temp3.txt
 while read subdir_desc
 do
 	subdir=$(echo $subdir_desc | cut -d " " -f 2)
-	bash server/remove_dir.sh $archive_name $subdir
+	bash remove_dir.sh $archive_name $subdir
 done < temp3.txt

@@ -4,31 +4,41 @@
 
 https://doc.fedora-fr.org/wiki/Netcat,_connexion_client/serveur_en_bash
 
-### server
+## Run the Server
 
-Run a local server
+To run the server on localhost, go into the **server** directory and run the following command.
 ```
-bash server/server.sh [PORT]
-```
-
-### client
-
-help
-```
-bash client/vsh.sh --help
+bash server.sh [PORT]
 ```
 
-mode list
+## Run the client
+
+### Make VSH a shell command
+
+* Go into at the client folder.
+* Print and copy the current path using `pwd`
+* Add it to the PATH variable `export PATH=$PATH:<copied_path>`
+
+Now you can run the **vsh** command in your shell.
+
+### Use VSH
+
+To display the help
 ```
-bash client/vsh.sh -list localhost [PORT]  
+vsh --help
 ```
 
-mode extract 
+To list the archives on the server
 ```
-bash client/vsh.sh -extract localhost [PORT] [ARCHIVE NAME]
+vsh -list localhost [PORT]  
 ```
 
-mode browse
+To extract and archive from the server to the your current path
 ```
-bash client/vsh.sh -browse localhost [PORT] [ARCHIVE NAME]
+vsh -extract localhost [PORT] [ARCHIVE NAME]
+```
+
+To browse an archive
+```
+vsh -browse localhost [PORT] [ARCHIVE NAME]
 ```

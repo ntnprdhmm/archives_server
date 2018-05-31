@@ -6,7 +6,7 @@ directory=$(dirname $2)
 file_name=$(basename $2)
 
 # list all files/directories in the given directory
-bash server/browse_ls.sh $archive_name $directory > temp.txt
+bash browse_ls.sh $archive_name $directory > temp.txt
 
 # search the line that describes the file in the archive, 
 # and the index of this line

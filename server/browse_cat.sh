@@ -6,7 +6,7 @@ directory=$2
 file_to_print=$3
 
 # reuse code of browse_ls to display the content of the directory
-bash server/browse_ls.sh $archive_name $directory > temp2.txt
+bash browse_ls.sh $archive_name $directory > temp2.txt
 
 found=false
 
