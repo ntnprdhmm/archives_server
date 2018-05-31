@@ -1,0 +1,147 @@
+\documentclass[titlepage]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\lstset{ 
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  frame=single,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Bash,                 % the language of the code
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=1,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,	                   % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\begin{document}
+
+	\title{Implémetation d'un serveur d'archives en Bash avec NetCat}
+	\author{Antoine Prudhomme \\ \\ Mathilde Sandor}
+	\date{\today}
+
+	\maketitle
+
+	\begin{abstract}
+		TODO: abstract 
+	\end{abstract}
+
+	\section{Introduction}
+	L'objectif du projet était d'implémenter un serveur d'archives sous Linux en Bash.
+	Le serveur contient des archives, dans un format défini dans le sujet. 
+	Un client peut intéragir avec le serveur au travers d'une commande shell, nommée vsh. :
+	Cette commande possède 3 modes:
+	\begin{itemize}  
+	\item \textbf{list}, pour afficher l'ensemble des archives du serveur.
+	\item \textbf{browse}, pour explorer une archive. Ce mode gère les commandes \textbf{pwd, cd, ls, rm et cat}.
+	\item \textbf{extract}, qui permet d'extraire une archive sur la machine cliente.
+	\end{itemize}   
+
+	%\subsection{Subsection Heading Here}
+	%Write your subsection text here.
+
+	\section{Modèle client serveur avec NetCat}
+	
+	\subsection{Netcat} 
+	Pour implémenter le modèle client-serveur, nous avons utilisé l'utilitaire NetCat qui permet de gérer des sockets.
+	Netcat permet d'écouter sur un port réseau, de parler sur un port réseau, mais aussi au serveur de répondre aux clients en utilisant un \textbf{named pipe}.
+
+	ex d'écoute / d'envoie / de réponse
+
+	\subsubsection{Implémentation d'un serveur avec Netcat}
+
+	On utilise simplement cette commande
+	\begin{lstlisting}
+	nc -l -p $port
+	\end{lstlisting}
+
+	Le soucis, c'est qu'une fois la reqûete traitée par le serveur, netcat ferme la connexion, donc le serveur arrête d'écouter le port. Pour résoudre ce problème, on peut simplement mettre la commande ci-dessus dans une boucle infinie: tant que le serveur tourne, on relance l'écoute du port à chaque reqûete traitée.
+	\begin{lstlisting}
+	while true;
+	do
+		echo "server is listening on port $port"
+		nc -lp $port
+	done
+	\end{lstlisting}
+
+	Le serveur lit sur le socket, mais on souhaite également qu'il puisse écrire sur ce même socket. Pour cela, on crée un \textbf{named pipe}, que l'on nomme ici backpipe.
+	\begin{lstlisting}
+	if [ ! -e backpipe ];
+	then
+	    mkfifo backpipe
+	fi
+
+	while true;
+	do
+	    echo "server is listening"
+	    nc -l $port < backpipe | echo "hello world" > backpipe
+	done
+	\end{lstlisting}
+
+	La sortie standard envoie les données dans le backpipe et les données sont renvoyées dans la socket.
+	Le script ci dessus renvoie "hello world" à chaque requête d'un client.
+
+	Mais le client ne se contentera pas de se connecter au serveur. Il va aussi envoyer une commande vsh au serveur (list, extract, ..). Donc le serveur doit être capable dans un premier temps d'intercepter la reqûete, puis, après avoir fait ce qu'il avait à faire, écrire une réponse dans la socket à destination du client. Le code ci dessous permet de faire ça. 
+
+	\begin{lstlisting}
+	if [ ! -e backpipe ];
+	then
+	    mkfifo backpipe
+	fi
+
+	while true;
+	do
+	    echo "server is listening"
+	    req=$(nc -lp $port)
+	    nc -l $port < backpipe | echo "request: $req" > backpipe
+	done
+	\end{lstlisting}
+
+	On a donc un code qui permet de créer un serveur capable d'intercepter des requêtes puis de retourner une reponse au client. Il Reste donc à voir comment un client peut envoyer une requête au serveur.
+
+	\subsection{Implémentation d'un client avec Netcat}
+	Le code d'un client est beaucoup plus simple que celui d'un serveur, puisque les seuls actions qu'il a à faire sont:
+	\begin{itemize}  
+		\item se connecter au serveur 
+		\item envoyer une requête
+		\item se mettre en écoute pour attendre la réponse du serveur
+	\end{itemize}
+
+	Ci-dessous, le code du client. \textit{req.txt} est un fichier contenant la reqûete. 
+
+	\begin{lstlisting}
+	nc $host $port < req.txt
+	sleep 1s
+	nc $host $port
+	\end{lstlisting}
+
+	\textit{Dans notre implémentation, nous utilisons le même port pour le client et pour le serveur} 
+
+	Nous avons donc un modèle client-serveur fonctionnel.
+
+	\subsection{}
+	Expliquer comment on a implémenter vsh (structure globale du code)
+
+	\section{list}
+
+	\section{browse}
+
+	\section{extract}
+
+\end{document}

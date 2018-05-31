@@ -5,3 +5,8 @@ server_in.txt
 backpipe
 
 temp*.txt
+
+*.log
+*.aux
+*.toc
+*.pdf
