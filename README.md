@@ -8,7 +8,7 @@ https://doc.fedora-fr.org/wiki/Netcat,_connexion_client/serveur_en_bash
 
 To run the server on localhost, go into the **server** directory and run the following command.
 ```
-bash server.sh [PORT]
+bash server.sh <PORT>
 ```
 
 ## Run the client
@@ -20,6 +20,8 @@ bash server.sh [PORT]
 * Add it to the PATH variable `export PATH=$PATH:<copied_path>`
 
 Now you can run the **vsh** command in your shell.
+
+***vsh** will be available only on the current shell only. To make it permanent, you should add it to your **~/.bashrc** file*
 
 ### Use VSH
 

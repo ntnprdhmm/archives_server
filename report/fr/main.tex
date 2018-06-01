@@ -62,8 +62,6 @@
 	Pour implémenter le modèle client-serveur, nous avons utilisé l'utilitaire NetCat qui permet de gérer des sockets.
 	Netcat permet d'écouter sur un port réseau, de parler sur un port réseau, mais aussi au serveur de répondre aux clients en utilisant un \textbf{named pipe}.
 
-	ex d'écoute / d'envoie / de réponse
-
 	\subsubsection{Implémentation d'un serveur avec Netcat}
 
 	On utilise simplement cette commande
@@ -89,7 +87,7 @@
 
 	while true;
 	do
-	    echo "server is listening"
+	    echo "server is listening on port $port"
 	    nc -l $port < backpipe | echo "hello world" > backpipe
 	done
 	\end{lstlisting}
@@ -107,7 +105,7 @@
 
 	while true;
 	do
-	    echo "server is listening"
+	    echo "server is listening on port $port"
 	    req=$(nc -lp $port)
 	    nc -l $port < backpipe | echo "request: $req" > backpipe
 	done
@@ -135,8 +133,45 @@
 
 	Nous avons donc un modèle client-serveur fonctionnel.
 
-	\subsection{}
-	Expliquer comment on a implémenter vsh (structure globale du code)
+	\subsection{Structure de notre implémentation de VSH}
+	Notre implémentation de VSH est basée sur le code client-serveur détaillé dans la section précédente.
+	À la racine du projet, on trouve deux dossiers:
+	\begin{itemize}  
+		\item \textbf{client}, qui contient le code du client 
+		\item \textbf{server}, qui contient le code du serveur
+	\end{itemize}
+	Ces deux dossiers sont totallement indépendants.
+
+	\subsubsection{Structure du serveur}
+	Le point d'entré du serveur est le script \textbf{server.sh}. Le code de ce script est très similaire à celui présenté plus haut. La différence est qu'ici, on ne ne renvoie pas au client sa reqûete. La reqûete du client est parsée, et à l'aide d'un \textit{case}, on décide de ce qu'il faut faire.
+	\begin{itemize}  
+		\item Si la requête match un cas du \textit{case} différent du cas par défaut, on execute le sous script du serveur qui correspond et on retourne au client ce que retourne ce sous script.
+		\item Si la requête match le cas par défaut (donc que la reqûete n'est pas connue par le serveur) le serveur retourne un message pour indiquer que la commande est inconnue.
+	\end{itemize}
+
+	Pour lancer le serveur, il faut ouvrir un shell dans le repertoire \textbf{server} puis executer la commande suivante:
+
+	\begin{lstlisting}
+	bash server.sh $port
+	\end{lstlisting}
+
+	Les différents sous script sont détaillés dans les sections suivantes.
+
+	\subsubsection{Structure du client}
+	Le point d'entré est le script \textbf{vsh} auquel on a retiré l'extension. Ainsi, en ajoutant son repertoire à la variable \textbf{PATH} on pourra utiliser \textbf{vsh} de la même manière que les commandes shell standard (\textbf{pwd, ls, ...}). 
+
+	\textit{Le \textbf{README.md} explique comment ajouter \textbf{vsh} à \textbf{PATH}}
+
+	Lorsque le script \textbf{vsh} est executé, on fait un choix en fonction de la valeur du premier paramètre donné par l'utilisateur.
+	\begin{lstlisting}
+		Si le 1er parametre correspond a un mode vsh, alors
+			Si il y a tous les arguments attendu, alors
+				on execute le mode vsh
+			Sinon
+				on affiche un message d'erreur
+		Sinon
+			on affiche le contenu de usage
+	\end{lstlisting}
 
 	\section{list}
 
