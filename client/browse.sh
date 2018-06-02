@@ -222,7 +222,8 @@ do
 	elif [[ ${cmd_parts[0]} == "help" ]];
 	then
 		usage
-	else
+	elif [[ $cmd ]];
+	then
 		echo "vsh browse: command not found: ${cmd_parts[0]}"
 	fi
 	read -p "vsh@$host:$port {$archive_name} $current_dir :> " cmd
