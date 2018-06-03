@@ -31,6 +31,9 @@
   title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
 
+\setlength{\parindent}{2em}
+\setlength{\parskip}{.5em}
+
 \begin{document}
 
 	\title{Implémetation d'un serveur d'archives en Bash avec NetCat}
@@ -49,12 +52,12 @@
 	\section{Introduction}
 	L'objectif du projet était d'implémenter un serveur d'archives sous Linux en Bash.
 	Le serveur contient des archives, dans un format défini dans le sujet. 
-	Un client peut intéragir avec le serveur au travers d'une commande shell, nommée vsh. :
+	Un client peut intéragir avec le serveur au travers d'une commande shell, nommée \textbf{vsh}. :
 	Cette commande possède 3 modes:
 	\begin{itemize}  
 	\item \textbf{list}, pour afficher l'ensemble des archives du serveur.
 	\item \textbf{browse}, pour explorer une archive. Ce mode gère les commandes \textbf{pwd, cd, ls, rm et cat}.
-	\item \textbf{extract}, qui permet d'extraire une archive sur la machine cliente.
+	\item \textbf{extract}, qui permet d'extraire une archive depuis le serveur sur la machine cliente.
 	\end{itemize}   
 
 	% -------------- %
@@ -63,7 +66,7 @@
 	\section{Modèle client serveur avec NetCat}
 	
 	\subsection{Netcat} 
-	Pour implémenter le modèle client-serveur, nous avons utilisé l'utilitaire NetCat qui permet de gérer des sockets.
+	Pour implémenter le modèle client-serveur, nous avons utilisé l'utilitaire \textbf{NetCat} qui permet de gérer des sockets.
 	Netcat permet d'écouter sur un port réseau, de parler sur un port réseau, mais aussi au serveur de répondre aux clients en utilisant un \textbf{named pipe}.
 
 	% SERVEUR %
@@ -83,7 +86,7 @@
 	done
 	\end{lstlisting}
 
-	Le serveur lit sur le socket, mais on souhaite également qu'il puisse écrire sur ce même socket. Pour cela, on crée un \textbf{named pipe}, que l'on nomme ici backpipe.
+	Le serveur lit sur le socket, mais on souhaite également qu'il puisse écrire sur ce même socket. Pour cela, on crée un \textbf{named pipe}, que l'on nomme ici \textbf{backpipe}.
 	\begin{lstlisting}
 	if [ ! -e backpipe ];
 	then
@@ -97,10 +100,9 @@
 	done
 	\end{lstlisting}
 
-	La sortie standard envoie les données dans le backpipe et les données sont renvoyées dans la socket.
-	Le script ci dessus renvoie "hello world" à chaque requête d'un client.
+	Le script ci dessus renvoie \textit{"hello world"} à chaque requête d'un client.
 
-	Mais le client ne se contentera pas de se connecter au serveur. Il va aussi envoyer une commande vsh au serveur (list, extract, ..). Donc le serveur doit être capable dans un premier temps d'intercepter la reqûete, puis, après avoir fait ce qu'il avait à faire, écrire une réponse dans la socket à destination du client. Le code ci dessous permet de faire ça. 
+	Mais le client ne se contentera pas de se connecter au serveur. Il va envoyer une commande \textbf{vsh} au serveur. Donc le serveur doit être capable dans un premier temps d'intercepter la reqûete, puis, après avoir fait ce qu'il avait à faire, écrire une réponse dans la socket à destination du client. Le code ci dessous permet de faire ça. 
 
 	\begin{lstlisting}
 	if [ ! -e backpipe ];
@@ -116,18 +118,18 @@
 	done
 	\end{lstlisting}
 
-	On a donc un code qui permet de créer un serveur capable d'intercepter des requêtes puis de retourner une reponse au client. Il Reste donc à voir comment un client peut envoyer une requête au serveur.
+	On a donc un code qui permet de créer un serveur capable de gérer des requêtes puis de retourner une réponse au client. Il reste donc à voir comment un client peut envoyer une requête au serveur.
 
 	% client %
 	\subsection{Implémentation d'un client avec Netcat}
-	Le code d'un client est beaucoup plus simple que celui d'un serveur, puisque les seuls actions qu'il a à faire sont:
+	Le code d'un client est beaucoup plus simple que celui d'un serveur, puisque les seules actions qu'il a à faire sont:
 	\begin{itemize}  
 		\item se connecter au serveur 
 		\item envoyer une requête
 		\item se mettre en écoute pour attendre la réponse du serveur
 	\end{itemize}
 
-	Ci-dessous, le code du client. \textit{req.txt} est un fichier contenant la reqûete. 
+	Ci-dessous, le code du client (\textit{req.txt} est un fichier contenant la reqûete).
 
 	\begin{lstlisting}
 	nc $host $port < req.txt
@@ -135,27 +137,29 @@
 	nc $host $port
 	\end{lstlisting}
 
-	\textit{Dans notre implémentation, nous utilisons le même port pour le client et pour le serveur} 
+	\textit{Dans notre implémentation, nous utilisons le même port pour le client et pour le serveur}
 
 	Nous avons donc un modèle client-serveur fonctionnel.
 
 	% ----------------- %
 	% STRUCTURE DU CODE %
 	% ----------------- % 
-	\subsection{Structure de notre implémentation de VSH}
+	\subsection{Structure de notre code}
+
 	Notre implémentation de VSH est basée sur le code client-serveur détaillé dans la section précédente.
 	À la racine du projet, on trouve deux dossiers:
 	\begin{itemize}  
 		\item \textbf{client}, qui contient le code du client 
 		\item \textbf{server}, qui contient le code du serveur
 	\end{itemize}
-	Ces deux dossiers sont totallement indépendants.
 
-	% structure du serveurr %
+	\textit{Les scripts du client sont totallement indépendants des scripts du serveurs.}
+
+	% structure du serveur %
 	\subsubsection{Structure du serveur}
 	Le point d'entré du serveur est le script \textbf{server.sh}. Le code de ce script est très similaire à celui présenté plus haut. La différence est qu'ici, on ne ne renvoie pas au client sa reqûete. La reqûete du client est parsée, et à l'aide d'un \textit{case}, on décide de ce qu'il faut faire.
 	\begin{itemize}  
-		\item Si la requête match un cas du \textit{case} différent du cas par défaut, on execute le sous script du serveur qui correspond et on retourne au client ce que retourne ce sous script.
+		\item Si la requête match un cas du \textit{case} différent du cas par défaut, on execute le \textit{sous script} du serveur qui correspond et on retourne au client ce que retourne ce sous script.
 		\item Si la requête match le cas par défaut (donc que la reqûete n'est pas connue par le serveur) le serveur retourne un message pour indiquer que la commande est inconnue.
 	\end{itemize}
 
@@ -165,24 +169,24 @@
 	bash server.sh $port
 	\end{lstlisting}
 
-	Les différents sous script sont détaillés dans les sections suivantes.
+	\textit{Les différents sous script sont détaillés dans les sections suivantes.}
 
 	% structure du client %
 	\subsubsection{Structure du client}
-	Le point d'entré est le script \textbf{vsh} auquel on a retiré l'extension. Ainsi, en ajoutant son repertoire à la variable \textbf{PATH} on pourra utiliser \textbf{vsh} de la même manière que les commandes shell standard (\textbf{pwd, ls, ...}). 
 
-	\textit{Le \textbf{README.md} explique comment ajouter \textbf{vsh} à \textbf{PATH}}
+	Le point d'entré est le script \textbf{vsh} auquel on a retiré l'extension. Ainsi, en ajoutant son repertoire à la variable \textbf{PATH} on pourra utiliser \textbf{vsh} de la même manière que les commandes shell standard (\textbf{pwd, ls, ...}). \par
+	\textit{Le fichier \textbf{README.md} explique comment ajouter \textbf{vsh} à \textbf{PATH}}
 
 	Lorsque le script \textbf{vsh} est executé, on fait un choix en fonction de la valeur du premier paramètre donné par l'utilisateur.
-	\begin{lstlisting}
-		Si le 1er parametre correspond a un mode vsh, alors
-			Si il y a tous les arguments attendu, alors
-				on execute le mode vsh
-			Sinon
-				on affiche un message d'erreur
-		Sinon
-			on affiche le contenu de usage
-	\end{lstlisting}
+
+	\begin{itemize}
+		\item Si le 1er paramètre correspond à un mode vsh
+		\begin{itemize}
+			\item Si il y a tous les paramètres attendu, on execute le mode vsh
+			\item Sinon, on affiche un message d'erreur
+		\end{itemize}
+		\item Sinon, on appel la fonction \textbf{usage} pour afficher l'aide
+	\end{itemize}
 
 	% ========= %
 	% MODE HELP %
@@ -195,7 +199,7 @@
 	vsh --help
 	\end{lstlisting}
 
-	Ce qui est affiché à l'utilisateur une fois la commande ci dessus executée est le contenu de la fonction \textbf{usage}, qui décrit l'utilisateur de la commande \textbf{vsh}. Cette fonction est définie dans le script \textbf{vsh} du repetoire \textbf{client}.
+	Ce qui est affiché à l'utilisateur une fois la commande ci dessus executée est le contenu de la fonction \textbf{usage}, qui décrit l'utilisation de la commande \textbf{vsh}. Cette fonction est définie dans le script \textbf{vsh} du repetoire \textbf{client}.
 
 	\textit{Le mode \textbf{help} informe l'utilisateur sur comment executer le mode \textbf{browse}, mais ne donne pas d'informations sur les commandes du mode \textbf{browse}, car il possède sa propre fonction \textbf{help}, détaillée dans la section dédiée à \textbf{browse}}
 
@@ -228,12 +232,12 @@
 
 	Dans un premier temps, un petit message est affiché à l'utilisateur, pour lui indiquer qu'il se trouve dans le shell VSH, et lui rappeler dans quelle archive il navigue. On lui dit également comment obtenir de l'aide et comment quitter le shell VSH.
 
-	Le prompt donne un certain nombre d'informations:
+	Le prompt donne différentes d'informations:
 	\begin{itemize}  
 		\item \textbf{vsh}: on se trouve dans le shell vsh
-		\item \textbf{@localhost:1234}: ile serveur et le port auquel on est connecté
+		\item \textbf{@localhost:1234}: le serveur et le port auquel on est connecté
 		\item \textbf{{1.arch}}: l'archive dans laquelle on navigue
-		\item \textbf{/A/}: notre emplacement actuel dans l'archive (pwd) 
+		\item notre emplacement actuel dans l'archive (ici, à la racine) 
 	\end{itemize}
 
 	Une fois dans ce shell, plusieurs commandes, présentées ci dessous, sont disponibles.
@@ -252,51 +256,42 @@
 
 	La commande \textbf{ls} affiche le contenu d'un repertoire. Si aucun chemin n'est précisé, c'est le contenu du repertoire courant qui sera affiché.
 
-	\subsubsection{Côté serveur}
+	Côté serveur, on s'occupe de trouver les fichiers et répertoires contenu dans le repertoire demandé. Pour celà, l'algorithme va chercher la partie de l'archive qui définie le repertoire, c'est à dire de la ligne \textbf{directory} correspond au répertoire jusqu'au prochain symbole \textbf{@}. 
 
-	Côté serveur, on s'occupe de trouver les fichiers et répertoires contenu dans le repertoire demandé. Pour celà l'algorithme va chercher la partie de l'archive qui définie le repertoire, c'est à dire de la ligne \textbf{directory} correspond au répertoire jusqu'au prochaine \textbf{@}. 
-
-	\subsubsection{Côté client}
-
-	Côté client, on parcours l'ensemble des lignes décrivant un fichier ou un repertoire retournées par le serveur afin de récupérer le nom. En même temps, on en profite pour savoir si c'est un fichier executable ou un répertoire, pour indiquer cette information à l'affichage.
+	Côté client, on parcours l'ensemble des lignes retournées par le serveur, qui décrivent le contenu du repertoire. Pour chacune de ces ligne, on regarde également si c'est un repertoire ou un fichier executable afin d'indiquer cette information à l'affichage.
 
 	\subsection{cat}
 
 	La commande \textbf{ls} cat affiche le contenu d'un fichier. Si aucune fichier n'est donné en paramètre, alors on affiche un message d'erreur.
 
-	\subsubsection{Côté serveur}
-
-	Pour trouver la ligne de l'archive décrivant le fichier, il nous faut deux informations:
+	Côté serveur, on commence par trouver la ligne de l'archive décrivant le fichier dans l'archive. Pour celà, il nous faut deux informations:
 	\begin{itemize}  
 		\item Le nom du fichier   
 		\item Le répertoire dans lequel il se trouve. Car deux repertoires différents peuvent tout à fait contenir un fichier portant le même nom.   
 	\end{itemize}
 
-	Dans un premier temps, on récupère le contenu du répertoire qui contient le fichier cherché. Pour celà, on réutilise le code de la commande \textbf{ls}. Puis on parcours les lignes retournés à la recherche du fichier désiré.
+	Dans un premier temps, on récupère le contenu du répertoire qui contient le fichier cherché. Pour celà, on utiise la commande \textbf{ls}. Puis on parcours les lignes retournés à la recherche du fichier désiré.
 
-	\begin{lstlisting}
-	Si le fichier n'a pas ete trouve, alors
-		on retourne un code d'erreur.
-	Sinon
-		Si la description du fichier possede des informations complementaires (donc le fichier possede un contenu), alors
-			on affiche la partie du fichier definie par les informations completementaires, a savoir les lignes correspondant au contenu du fichier.
-	\end{lstlisting}
+	\begin{itemize}
+		\item Si le fichier n'a pas été trouvé, alors on retourne un code d'erreur.
+		\item Sinon si le fichier possède un contenu (sa description contient des informations supplémentaires), alors on affiche les lignes de l'archive correspondantes au contenu de ce fichier.
+	\end{itemize}
 
-	\subsubsection{Côté client}
-
-	Côté client, on a juste à vérifier le contenu de la réponse du serveur. Si la réponse contient le code d'erreur, alors on affiche un message à l'utilisateur lui disant que son fichier n'existe pas. Dans le cas contraire, on affiche la réponse du serveur qui est le contenu du fichier demandé.
+	Côté client, on a juste à vérifier le contenu de la réponse du serveur. Si la réponse contient le code d'erreur, alors on affiche un message à l'utilisateur l'informant que le fichier n'existe pas. Dans le cas contraire, on affiche la réponse du serveur qui est le contenu du fichier demandé.
 
 	\subsection{rm}
 
-	La commande \textbf{rmdir} supprime le fichier donné. Si aucun fichier n'est donné, un message d'erreur est affiché à l'utilisateur. 
+	La commande \textbf{rm} supprime le fichier donné. Si aucun fichier n'est donné, un message d'erreur est affiché à l'utilisateur.
 
-	Pour supprimer un fichier de l'archive, on retrouver les mêmes problématiques que \textbf{cat}, donc on commence de la même manière, en utilisant \textbf{ls} (bien pratique cette commande) et en regardant les informations complétementaires. Mais cette fois, au lieu d'afficher les lignes du fichier, on va les remplacer par des lignes vides. Puis on fait de même pour la ligne qui décrit le fichier dans le header de l'archive. Et voilà, le fichier n'existe plus dans l'archive.
+	Tout le travail se fait côté serveur. Pour supprimer un fichier de l'archive, on retrouver les mêmes problématiques que \textbf{cat}, donc on commence de la même manière, en utilisant \textbf{ls} et en regardant les informations complétementaires. Mais cette fois, au lieu d'afficher les lignes de l'archive correspontes aux contenu du fichier, on va les remplacer par des lignes vides. Puis on fait de même pour la ligne qui décrit le fichier dans le header de l'archive. Et voilà, le fichier a été éffacé de l'archive.
 
-	Cette solution n'est pas optimale au sens où les lignes vides sont inutiles, et chaqu'une de ces lignes augmente la taille de l'archive de 1 octet. Mais l'avantage de cette technique est que l'algorithme pour supprimer un fichier est très simple, car il n'y a pas besoin de reindexer les lignes dans l'archives et les informations complémentaires de chaque fichier.
+	Cette solution n'est pas optimale au sens où les lignes vides sont inutiles, et chacune de ces lignes augmente la taille de l'archive de 1 octet. Mais l'avantage de cette technique est que l'algorithme pour supprimer un fichier est très simple, car il n'y a pas besoin de reindexer les lignes dans l'archive et les informations complémentaires de chaque fichier.
 
 	\subsection{rmdir}
 
 	La commande \textbf{rmdir} supprime le répertoire donné. Si aucun repertoire n'est donné, un message d'erreur est affiché à l'utilisateur.
+
+	De même que pour \textbf{rm}, tout le travail se fait côté serveur.
 
 	Un répertoire pouvant contenir des fichiers et d'autres répertoires, on utilise la commande \textbf{rm} dans \textbf{rmdir} afin de ne pas réécrire de code pour la suppression de fichiers dans l'archive.
 
