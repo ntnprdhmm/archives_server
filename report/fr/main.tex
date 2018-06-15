@@ -318,13 +318,13 @@
 	% ============ %
 	\section{extract}
 
-	Le mode extract permet à l’utilisateur d’extraire une archive. Ici le serveur ne sert qu’à transmettre l’addresse de l’archive si elle existe. Et un code d’erreur si ce n’est pas le cas. 
+	Le mode extract permet à l’utilisateur d’extraire une archive. Ici le serveur ne sert qu’à transmettre le contenu de l’archive si elle existe. Et un code d’erreur si ce n’est pas le cas. 
 
-	Le reste du travail se fait coté client. Si le serveur envoie un code d’erreur, le client envoie un message d’erreur. Sinon, le client va extraire l’archive comme ci-suit.
+	Le reste du travail se fait coté client. Si le serveur répond un code d’erreur, le client affiche un message d’erreur. Sinon, le client va extraire l’archive comme ci-suit.
 
-	\subsection{Outils utilisés}
+	\subsection{Préambule}
 
-	Nous récupérons le début du header et le début du corps des fichiers grâce aux premieres indications de l’archives. Nous récupérons aussi la taille totale de l’archive afin de ne pas faire de boucle infinie.
+	Nous récupérons le numéro de la première ligne de l'en-tête et le numéro de la première ligne du corps de l'archive grâce aux indications de la première ligne. Nous récupérons aussi la taille totale de l’archive qui sera utile pour découper l'archive.
 
 	\begin{lstlisting}
 		header_start=$(echo $first_line | cut -d ":" -f 1)
@@ -332,38 +332,25 @@
 		extracted_length=$(wc -l $VSH_CLIENT_RES | cut -d " " -f 1)
 	\end{lstlisting}
 
-	Par la suite, nous aurons aussi besoin d’une fonction capable de transformer les permissions données sous forme entière (-rwxrwxrwx) en forme numérique (777). La fonction lit chaque caractère de la ligne de permission et offre des points à ceux qui ne sont pas « - ». Les variables user, group, et owner cumulent chacune les points qui les concernent et obtiennent une valeur définitive.
+	Par la suite, nous aurons aussi besoin d’une fonction capable de transformer les permissions données sous forme symbolique (-rwxrwxrwx) en octal (777). La fonction lit chaque caractère de la ligne de permission et offre des points à ceux qui sont activés (différents de « - »). Les variables user, group, et owner cumulent chacune les points qui les concernent et obtiennent une valeur en octal correspondant à leurs permissions sur le fichier. 
+
+	Ci-dessous, un extrait de la fonction, qui transforme les permissions pour \textbf{user} du format symbolique à octal.
 
 	\begin{lstlisting}
-	p=$1
+	p=$1 # permissions en symbolique
 	user=0
-	group=0
-	owner=0
 	[[ ${p:1:1} != "-" ]] && user=$(($user+4))
 	[[ ${p:2:1} != "-" ]] && user=$(($user+2))
 	[[ ${p:3:1} != "-" ]] && user=$(($user+1))
 	\end{lstlisting}
 
-	\subsection{Extraction des fichiers et dossiers}
+	\subsection{Extraction des dossiers et fichiers}
 
-	On utilise un read line pour parcourir le header et un grep pour connaitre la nature de l’élément de la ligne :
+	On utilise un \textit{read line} pour parcourir le header et un \textit{grep} pour connaitre la nature de chaque ligne.
 	\begin{itemize}
-%		\item Si on lit un dossier (directory), ce dossier devient notre dossier courant (current_dir), et on le crée s’il n’existe pas déjà.
-%		\item Si on lit un sous-dossier, on l’associe à la variable sub_dir, et on le crée en respectant son adresse. 
-%		\item \begin{lstlisting}
-%		sub_dir_path="$current_dir/$sub_dir"
-%		mkdir -p $sub_dir_path	
-%				\end{lstlisting}
-%		\item On lui attribue les permissions qui lui reviennent grace à la fonction décrite plus haut en passant en argument les droits du fichier.
-%		\item Si on lit un fichier, on sépare les informations de la ligne en parties  (définies par les espaces):
-%%			\item Le nom, qui nous permet de crée le fichier.
-%			\item \begin{lstlisting}
-%			file_path="$current_dir/${parts[0]}"
-%			touch $file_path
-%					\end{lstlisting}			
-%			\item Les permissions, que nous traduisons grâce à notre fonction, puis que nous attribuons au fichier.
-%			\item S’il y a 5 parties, c’est que le fichier contient du texte. Dans ce cas on lit les 2 dernières parties. Elles décrivent où se situent le texte et les lignes qu’il contient.
-%			\end{itemize}
+		\item Si on lit une ligne correspondant au début de la déclaration d'un dossier (\textit{directory ...}) on le crée s’il n’existe pas déjà. Puis, on met à jour la variable \textit{current\_dir} car tous les dossiers et fichiers qui suivent vont être crées dans celui-ci.
+		\item Si on lit un sous-dossier, on le crée dans le répétoire courrant mémorisé dans \textit{current\_dir}, puis on lui donne les permissions associées. 
+		\item Quand la ligne décrit un fichier, commence comme pour les sous-dossiers: on le crée et on lui donne les permissions associées. Puis, si la ligne contient des informations complémentaires, alors le fichier possède un contenu. Dans ce cas, on récupère ce contenu dans le corps de l'archive avant de l'insérer dans le fichier crée.
 	\end{itemize}
 
 
