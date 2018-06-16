@@ -4,7 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{listings}
 \usepackage{color}
-\usepackage{graphicx}
+\usepackage{graphicx} 
 \usepackage[francais]{babel}
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
@@ -37,8 +37,8 @@
 
 \begin{document}
 
-	\title{Implémetation d'un serveur d'archives en Bash avec NetCat}
-	\author{Antoine Prudhomme \\ \\ Mathilde Sandor}
+	\title{Implémentation d'un serveur d'archives en Bash avec NetCat}
+	\author{Antoine Prudhomme \\ \\ Mathilde Sandor \\ \\ https://github.com/prudywsh/archives\_server}
 	\date{\today}
 
 	\maketitle
@@ -50,15 +50,28 @@
 	% INTRODUCTION %
 	% ============ %
 	\section{Introduction}
+	
+	\subsection{Le projet}
 	L'objectif du projet était d'implémenter un serveur d'archives sous Linux en Bash.
 	Le serveur contient des archives, dans un format défini dans le sujet. 
-	Un client peut intéragir avec le serveur au travers d'une commande shell, nommée \textbf{vsh}. :
+	Un client peut intéragir avec le serveur au travers d'une commande shell, nommée \textbf{vsh}.
 	Cette commande possède 3 modes:
 	\begin{itemize}  
 	\item \textbf{list}, pour afficher l'ensemble des archives du serveur.
-	\item \textbf{browse}, pour explorer une archive. Ce mode gère les commandes \textbf{pwd, cd, ls, rm et cat}.
+	\item \textbf{browse}, pour explorer une archive. Ce mode gère les commandes \textbf{pwd, cd, ls, cat, rm et rmdir}.
 	\item \textbf{extract}, qui permet d'extraire une archive depuis le serveur sur la machine cliente.
-	\end{itemize}   
+	\end{itemize}
+
+	Un mode \textbf{help} est également disponible, pour afficher l'aide.
+
+	\subsection{Travail réalisé}
+
+	\begin{itemize}  
+	\item \textbf{Antoine: } mise en place du modèle client-serveur, mode help, mode browse et page man.
+	\item \textbf{Mathilde: } mode list et mode extract
+	\end{itemize}  
+
+	\textit{L'historique des contributions sur GitHub n'est pas à suivre à la lettre: Mathilde a travaillé ses fonctionnalités de sont côté avant qu'elles soient intégrées par Antoine au projet. Mathilde a tout de même commencé à toucher à Git lors de la rédaction du rapport.}
 
 	% -------------- %
 	% CLIENT SERVEUR %
@@ -72,12 +85,12 @@
 	% SERVEUR %
 	\subsubsection{Implémentation d'un serveur avec Netcat}
 
-	On utilise simplement cette commande
+	On utilise simplement cette commande pour avoir un serveur en écoute en local sur le port donné.
 	\begin{lstlisting}
 	nc -l -p $port
 	\end{lstlisting}
 
-	Le soucis, c'est qu'une fois la reqûete traitée par le serveur, netcat ferme la connexion, donc le serveur arrête d'écouter le port. Pour résoudre ce problème, on peut simplement mettre la commande ci-dessus dans une boucle infinie: tant que le serveur tourne, on relance l'écoute du port à chaque reqûete traitée.
+	Le soucis, c'est qu'une fois la reqûete traitée par le serveur, netcat ferme la connexion, donc le serveur arrête d'écouter le port. Pour résoudre ce problème, on peut mettre la commande ci-dessus dans une boucle infinie: tant que le serveur tourne, on relance l'écoute du port à chaque reqûete traitée.
 	\begin{lstlisting}
 	while true;
 	do
@@ -121,7 +134,7 @@
 	On a donc un code qui permet de créer un serveur capable de gérer des requêtes puis de retourner une réponse au client. Il reste donc à voir comment un client peut envoyer une requête au serveur.
 
 	% client %
-	\subsection{Implémentation d'un client avec Netcat}
+	\subsubsection{Implémentation d'un client avec Netcat}
 	Le code d'un client est beaucoup plus simple que celui d'un serveur, puisque les seules actions qu'il a à faire sont:
 	\begin{itemize}  
 		\item se connecter au serveur 
@@ -188,10 +201,12 @@
 		\item Sinon, on appel la fonction \textbf{usage} pour afficher l'aide
 	\end{itemize}
 
+	\section{Les modes VSH}
+
 	% ========= %
 	% MODE HELP %
 	% ========= %
-	\section{help}
+	\subsection{help}
 
 	Le mode \textbf{help} permet à l'utilisateur d'avoir des informations sur la commande \textbf{vsh}. 
 
@@ -206,15 +221,20 @@
 	% ========== %
 	% MODE LIST %
 	% ========== %
-	\section{list}
+	
+	\subsection{list}
 
-	\subsection{coté client}
+	Le mode \textbf{list} permet au client de visualiser la liste des archives d'un serveur.
 
-	Si l'utilisateur a entré "client", on vérifie qu'il a fourni les 3 arguments. Si ce n'est pas le cas la commande vsh envoie un message d'erreur. Si tout est bien indiqué on envoie la demande au serveur.
+	\begin{lstlisting}
+	# $host: le serveur
+	# $port: le port sur le serveur
+	vsh -list $host $port
+	\end{lstlisting}
 
-	\subsection{coté serveur}
+	Si le client a fournit tous les arguments attendus, alors on demander au serveur de lister ses archives.
 
-	On demande à lire tous les fichiers du dossier archive sans indiquer son chemin	
+	Côté serveur, on affiche l'ensemble des archives stockées sur le serveur (seulement le nom des fichiers).
 
 	\begin{lstlisting}
 	find archives -type f -exec basename {} \;
@@ -223,7 +243,7 @@
 	% =========== %
 	% MODE BROWSE %
 	% =========== %
-	\section{browse}
+	\subsection{browse}
 
 	Le mode \textbf{browse} permet à l'utilisateur de naviguer dans une archive du serveur.
 
@@ -256,15 +276,15 @@
 
 	\textit{Les chemins vers les fichiers ou répertoires peuvent être soit relatifs, soit absolus}
 
-	\subsection{help}
+	\subsubsection{help}
 
 	La commande \textbf{help} affiche l'aide, avec l'utilisation de chacune des commandes disponibles.
 
-	\subsection{pwd}
+	\subsubsection{pwd}
 
 	La commande \textbf{pwd} affiche le répertoire courant. Cette information est gardée côté client car c'est le client qui conserve l'état de sa connexion avec le serveur. Donc pour cette commande, aucune reqûete au serveur n'est requise, on affiche simplement le contenu de la variable qui contient le répertoire courant.
 
-	\subsection{ls}
+	\subsubsection{ls}
 
 	La commande \textbf{ls} affiche le contenu d'un repertoire. Si aucun chemin n'est précisé, c'est le contenu du repertoire courant qui sera affiché.
 
@@ -272,9 +292,9 @@
 
 	Côté client, on parcours l'ensemble des lignes retournées par le serveur, qui décrivent le contenu du repertoire. Pour chacune de ces ligne, on regarde également si c'est un repertoire ou un fichier executable afin d'indiquer cette information à l'affichage.
 
-	\subsection{cat}
+	\subsubsection{cat}
 
-	La commande \textbf{cat} affiche le contenu d'un fichier. Si aucune fichier n'est donné en paramètre, alors on affiche un message d'erreur.
+	La commande \textbf{cat} affiche le contenu d'un fichier. Si aucun fichier n'est donné en paramètre, alors on affiche un message d'erreur.
 
 	Côté serveur, on commence par trouver la ligne de l'archive décrivant le fichier dans l'archive. Pour celà, il nous faut deux informations:
 	\begin{itemize}  
@@ -291,15 +311,15 @@
 
 	Côté client, on a juste à vérifier le contenu de la réponse du serveur. Si la réponse contient le code d'erreur, alors on affiche un message à l'utilisateur l'informant que le fichier n'existe pas. Dans le cas contraire, on affiche la réponse du serveur qui est le contenu du fichier demandé.
 
-	\subsection{rm}
+	\subsubsection{rm}
 
 	La commande \textbf{rm} supprime le fichier donné. Si aucun fichier n'est donné, un message d'erreur est affiché à l'utilisateur.
 
-	Tout le travail se fait côté serveur. Pour supprimer un fichier de l'archive, on retrouver les mêmes problématiques que \textbf{cat}, donc on commence de la même manière, en utilisant \textbf{ls} et en regardant les informations complétementaires. Mais cette fois, au lieu d'afficher les lignes de l'archive correspondantes au contenu du fichier, on va les remplacer par des lignes vides. Puis on fait de même pour la ligne qui décrit le fichier dans le header de l'archive. Et voilà, le fichier a été éffacé de l'archive.
+	Tout le travail se fait côté serveur. Pour supprimer un fichier de l'archive, on retrouve les mêmes problématiques que \textbf{cat}, donc on commence de la même manière, en utilisant \textbf{ls} et en regardant les informations complétementaires. Mais cette fois, au lieu d'afficher les lignes de l'archive correspondantes au contenu du fichier, on va les remplacer par des lignes vides. Puis on fait de même pour la ligne qui décrit le fichier dans le header de l'archive. Et voilà, le fichier a été éffacé de l'archive.
 
 	Cette solution n'est pas optimale au sens où les lignes vides sont inutiles, et chacune de ces lignes augmente la taille de l'archive de 1 octet. Mais l'avantage de cette technique est que l'algorithme pour supprimer un fichier est très simple, car il n'y a pas besoin de reindexer les lignes dans l'archive et les informations complémentaires de chaque fichier.
 
-	\subsection{rmdir}
+	\subsubsection{rmdir}
 
 	La commande \textbf{rmdir} supprime le répertoire donné. Si aucun repertoire n'est donné, un message d'erreur est affiché à l'utilisateur.
 
@@ -316,13 +336,13 @@
 	% ============ %
 	% MODE EXTRACT %
 	% ============ %
-	\section{extract}
+	\subsection{extract}
 
 	Le mode extract permet à l’utilisateur d’extraire une archive. Ici le serveur ne sert qu’à transmettre le contenu de l’archive si elle existe. Et un code d’erreur si ce n’est pas le cas. 
 
 	Le reste du travail se fait coté client. Si le serveur répond un code d’erreur, le client affiche un message d’erreur. Sinon, le client va extraire l’archive comme ci-suit.
 
-	\subsection{Préambule}
+	\subsubsection{Préambule}
 
 	Nous récupérons le numéro de la première ligne de l'en-tête et le numéro de la première ligne du corps de l'archive grâce aux indications de la première ligne. Nous récupérons aussi la taille totale de l’archive qui sera utile pour découper l'archive.
 
@@ -344,14 +364,26 @@
 	[[ ${p:3:1} != "-" ]] && user=$(($user+1))
 	\end{lstlisting}
 
-	\subsection{Extraction des dossiers et fichiers}
+	\subsubsection{Extraction des dossiers et fichiers}
 
 	On utilise un \textit{read line} pour parcourir le header et un \textit{grep} pour connaitre la nature de chaque ligne.
 	\begin{itemize}
 		\item Si on lit une ligne correspondant au début de la déclaration d'un dossier (\textit{directory ...}) on le crée s’il n’existe pas déjà. Puis, on met à jour la variable \textit{current\_dir} car tous les dossiers et fichiers qui suivent vont être crées dans celui-ci.
 		\item Si on lit un sous-dossier, on le crée dans le répétoire courrant mémorisé dans \textit{current\_dir}, puis on lui donne les permissions associées. 
-		\item Quand la ligne décrit un fichier, commence comme pour les sous-dossiers: on le crée et on lui donne les permissions associées. Puis, si la ligne contient des informations complémentaires, alors le fichier possède un contenu. Dans ce cas, on récupère ce contenu dans le corps de l'archive avant de l'insérer dans le fichier crée.
+		\item Quand la ligne décrit un fichier, on commence comme pour les sous-dossiers: on le crée et on lui donne les permissions associées. Puis, si la ligne contient des informations complémentaires, alors le fichier possède un contenu. Dans ce cas, on récupère ce contenu dans le corps de l'archive avant de l'insérer dans le fichier crée.
 	\end{itemize}
 
+
+	\section{man vsh}
+
+	Une commande shell se doit d'avoir sa page \textit{man}. C'est donc ce que nous avons fait. Pour se faire, nous nous sommes inspiré du \textit{man} de \textbf{mysql}, qui est assez similaire à \textbf{vsh} puisque \textit{mysql} est une commande shell, mais permet également de rentrer dans un shell \textit{mysql}. Les sources du man \textbf{mysql} sont disponibles sur \textbf{github}, donc c'était assez simple de créer notre page \textit{man} en se basant là dessus.
+
+	\textit{L'utilisation du man vsh est décrite dans le README.}
+
+	\section{Améliorations possibles du projet}
+
+	Le code du projet est fonctionnel et satisfait le cahier des charges. Les commandes de suppression pourraient cependant être améliorées, pour éviter de laisser des lignes vides dans les archives, ce qui ferait gagner de l'espace de stockage, mais serait plus gourmand en calcul.
+
+	Une fonctionnalité qui pourrait être intéressante à ajouter au projet est la création d'une archive à partir d'un répertoire existant (l'inverse d'extract). Si nous trouvons un peu de temps d'ici la soutenance, nous implémenterons cette fonctionnalité.
 
 \end{document}
