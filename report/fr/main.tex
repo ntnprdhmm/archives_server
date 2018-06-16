@@ -338,7 +338,16 @@
 	% ============ %
 	\subsection{extract}
 
-	Le mode extract permet à l’utilisateur d’extraire une archive. Ici le serveur ne sert qu’à transmettre le contenu de l’archive si elle existe. Et un code d’erreur si ce n’est pas le cas. 
+	Le mode extract permet à l’utilisateur d’extraire une archive. 
+
+	\begin{lstlisting}
+	# $host: le serveur
+	# $port: le port sur le serveur
+	# $archive_name: le nom de l'archive que l'on souhaite extraire
+	vsh -extract $host $port $archive_name
+	\end{lstlisting}
+
+	Ici le serveur ne sert qu’à transmettre le contenu de l’archive si elle existe. Et un code d’erreur si ce n’est pas le cas. 
 
 	Le reste du travail se fait coté client. Si le serveur répond un code d’erreur, le client affiche un message d’erreur. Sinon, le client va extraire l’archive comme ci-suit.
 

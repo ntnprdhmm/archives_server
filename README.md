@@ -44,3 +44,11 @@ To browse an archive
 ```
 vsh -browse localhost [PORT] [ARCHIVE NAME]
 ```
+
+## Install the VSH man page
+
+Take a look at **/etc/man.config** to know where your OS is looking for manual pages.
+
+You should see **/usr/local/man**.
+Move the file called **vsh.1** located in the **man** directory at the root of the project, to **/usr/local/man/man1**.
+When it's done, you should be able to run **man vsh** into shell to display the man page of **vsh**.
